@@ -11,7 +11,7 @@ def initialize_hrv_options(obj):
     obj.h1.setChecked(True)
 
     obj.recount = QPushButton(obj)
-    obj.recount.setText("Set boundries")
+    obj.recount.setText("Set boundaries")
     obj.recount.clicked.connect(lambda:obj.update_hrv_params())
 
     obj.start_label = QLabel("Initial interval")

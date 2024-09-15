@@ -28,7 +28,7 @@ def create_widgets(obj) -> None:
     # wczytania nowego pliku
     obj.file_btn = QPushButton(obj)
     obj.file_btn.resize(100, 50)
-    obj.file_btn.setText("Load file (.txt, .csv or .xls)")
+    obj.file_btn.setText("Load file (.txt, .csv, .xlsx or .xls)")
     obj.first_row.addWidget(obj.file_btn)
     obj.file_btn.clicked.connect(obj.open_dialog)
 
