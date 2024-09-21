@@ -3,3 +3,4 @@
 To install application run following commands:
 
 pyinstaller -F --paths=<your_path>\Lib\site-packages  main.py
+python -m PyInstaller main.py
