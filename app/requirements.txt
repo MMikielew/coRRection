@@ -1,7 +1,6 @@
 altgraph==0.17.3
 astropy==5.2.2
 asttokens==2.2.1
-auto-py-to-exe==2.34.0
 autopep8==2.0.2
 backcall==0.2.0
 bottle==0.12.25
@@ -53,7 +52,7 @@ pycodestyle==2.10.0
 pycparser==2.21
 pyerfa==2.0.0.3
 Pygments==2.14.0
-pyinstaller==5.10.1
+pyinstaller==5.6.2     
 pyinstaller-hooks-contrib==2023.2
 pyparsing==3.0.9
 PyQt5==5.15.9
