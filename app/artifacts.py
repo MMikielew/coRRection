@@ -191,7 +191,7 @@ def find_art3(obj):
 
 def find_art_quotient(obj):
     """
-    function to find artifacts with a use of Piskorski-Guzik filter
+    function to find artifacts with a use of Piskorski-Guzik quotient filter
     """
     x = np.array([interval.value for interval in obj.examination.RR_intervals])
     L = len(x) - 1
@@ -204,6 +204,26 @@ def find_art_quotient(obj):
     indices_m = indices_p
 
     return indices_m.tolist()
+
+def find_art_square(obj):
+    """
+    function to find artifacts with a use of Piskorski-Guzik square filter
+    """
+    x = np.array([interval.value for interval in obj.examination.RR_intervals])
+    xp = x[:-1]
+    xm = x[1:]
+    L = len(x) - 1
+    indices = np.where((xm[:L] < 300) | (xm[:L] > 2000))[0]
+
+    # Creating indices_p and indices_m
+    indices_p = indices
+    indices_m = indices - 1
+
+    # Concatenating indices_p and indices_m
+    indices = np.concatenate((indices_p, indices_m))
+
+    return indices.tolist()
+
 
 def remove_artifacts(obj):
     '''

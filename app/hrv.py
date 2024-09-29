@@ -35,13 +35,13 @@ def count_hrv(obj):
         obj.hrv_range.clear()
         obj.hrv_range.addItem(pg.InfiniteLine(obj.exam_start, pen='r'))
         obj.hrv_range.addItem(pg.InfiniteLine(obj.exam_stop, pen='r'))
-    subset_values = [interval.value for interval in obj.examination.RR_intervals[obj.exam_start:obj.exam_stop]]
-    stationarity_result = adfuller(subset_values[obj.exam_start:obj.exam_stop])[1]
+    subset_values = [interval.value for interval in obj.examination.RR_intervals]
+    stationarity_result = adfuller(subset_values)[1]
     
     hrv_params = {"stationarity": stationarity_result,
-                  "hrv_time": count_time_domain(subset_values[obj.exam_start:obj.exam_stop]),
-                  "hrv_nonlinear": count_nonlinear(subset_values[obj.exam_start:obj.exam_stop]),
-                  "hrv_freq": count_freq_domain(subset_values[obj.exam_start:obj.exam_stop])
+                  "hrv_time": count_time_domain(subset_values),
+                  "hrv_nonlinear": count_nonlinear(subset_values),
+                  "hrv_freq": count_freq_domain(subset_values)
                 }
     return hrv_params
 
@@ -158,9 +158,6 @@ def count_time_domain(RR, x=50, binWidth=7.8125):
         binwidthAux = binWidth/1000
     else: 
         binwidthAux = binWidth
-    hist, edges = np.histogram(RR, bins=np.arange(min(RR), max(RR)+binwidthAux, binwidthAux))
-    result["triang"] = len(RR)/np.max(hist)
-    result["tinn"] = calcTINN(hist, edges)
 
     return result
 

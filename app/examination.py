@@ -25,6 +25,7 @@ class Examination():
             # zainicjowanie słownika artefaktów
             self.artifacts = {"Tarvainen": [],
                             "Quotient": [],
+                            "Square": [],
                             "T1": [],
                             "T2": [],
                             "T3": [],

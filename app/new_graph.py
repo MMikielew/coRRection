@@ -36,10 +36,7 @@ def create_new_graph(obj):
         p.setXLink(obj.plot_label)
         p.setYLink(obj.plot_label)
 
-    # dodanie legendy do wykresu
-    obj.legend = pg.LegendItem()
-    obj.graphWidget.addItem(obj.legend)
-    
+   
     # dodanie etykiety wyświetlającej współrzędne 
     obj.label = pg.TextItem(text="X: {} \nY: {}".format(0, 0))
     obj.graphWidget.addItem(obj.label)

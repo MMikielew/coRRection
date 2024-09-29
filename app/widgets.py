@@ -77,11 +77,17 @@ def create_widgets(obj) -> None:
     obj.poin_art.clicked.connect(lambda:obj.auto_tarvainen())
     obj.a_buttons_layout.addWidget(obj.poin_art)
 
-    # Button that allows for auto Tarvainen detection
+    # Button that allows for auto Quotient detection
     obj.quot_art = QPushButton(obj)
     obj.quot_art.setText("Quotient filtering auto-finding")
     obj.quot_art.clicked.connect(lambda:obj.auto_poincare())
     obj.a_buttons_layout.addWidget(obj.quot_art)
+
+    # Button that allows for auto square detection
+    obj.square_art = QPushButton(obj)
+    obj.square_art.setText("Square filtering auto-finding")
+    obj.square_art.clicked.connect(lambda:obj.auto_square())
+    obj.a_buttons_layout.addWidget(obj.square_art)
 
     obj.art_btn = QPushButton(obj)
     obj.art_btn.setText("Mark manually")
@@ -102,8 +108,8 @@ def create_widgets(obj) -> None:
     obj.label_marks_correction = QLabel("Modify artifacts manually: ")
 
     # dodanie układu przycisków zaznaczeń
-    #obj.main_layout.addLayout(obj.r_buttons_layout)
-    #obj.r_buttons_layout.addWidget(obj.label_marks_correction, alignment=Qt.AlignmentFlag.AlignRight)
+    # obj.main_layout.addLayout(obj.r_buttons_layout)
+    # obj.r_buttons_layout.addWidget(obj.label_marks_correction, alignment=Qt.AlignmentFlag.AlignRight)
 
     # dodanie układu RR
     create_RR_layout(obj)
@@ -136,11 +142,12 @@ def create_widgets(obj) -> None:
     # utworzenie przycisków do usuwania grup artefaktów
     obj.Tarvainen = QCheckBox("Tarvainen")
     obj.quotient = QCheckBox("Quotient")
+    obj.square = QCheckBox("Square")
     obj.t1_auto = QCheckBox("T1")
     obj.t2_auto = QCheckBox("T2")
     obj.t3_auto = QCheckBox("T3")
     obj.diff_man = QCheckBox("Manual")
-    obj.checkbox_list = [obj.Tarvainen, obj.quotient, obj.t1_auto, obj.t2_auto, obj.t3_auto, obj.diff_man]
+    obj.checkbox_list = [obj.Tarvainen, obj.quotient, obj.square, obj.t1_auto, obj.t2_auto, obj.t3_auto, obj.diff_man]
     
     # utworzenie układów
     create_buttons_layout(obj)

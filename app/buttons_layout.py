@@ -32,7 +32,7 @@ def create_buttons_layout(obj):
 
     obj.m1.setChecked(True)
 
-    for t in [obj.diff_man, obj.Tarvainen, obj.quotient, 
+    for t in [obj.diff_man, obj.Tarvainen, obj.quotient, obj.square,
                 obj.t1_auto, obj.t2_auto, obj.t3_auto]:
         obj.c_buttons_layout.addWidget(t)
 

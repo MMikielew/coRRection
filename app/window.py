@@ -8,7 +8,7 @@ from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import QFileDialog, QHBoxLayout, QVBoxLayout, QWidget
 from PyQt6 import QtCore
 
-from artifacts import find_art_tarvainen, find_art_quotient, find_art1, find_art2, find_art3, remove_artifacts, find_art_quotient
+from artifacts import find_art_tarvainen, find_art_quotient, find_art_square, find_art1, find_art2, find_art3, remove_artifacts, find_art_quotient
 from examination import Examination
 from hrv import count_hrv, create_hrv_summary
 from widgets import create_widgets
@@ -170,6 +170,11 @@ class Window(QWidget):
         if len(self.examination.RR_intervals) > 0:
             self.examination.artifacts["Quotient"] = find_art_quotient(self)
             self.plot_artifacts()
+
+    def auto_square(self):
+        if len(self.examination.RR_intervals) > 0:
+            self.examination.artifacts["Square"] = find_art_square(self)
+            self.plot_artifacts()
     
     def clear_artifacts(self):
         if len(self.examination.RR_intervals) > 0:
@@ -204,6 +209,17 @@ class Window(QWidget):
 
         self.plot_poincare = pg.ViewBox()
         self.points_poin_art = pg.ViewBox()
+
+
+        # dodanie legendy do wykresu
+        self.legend = pg.LegendItem(offset=(0,0), labelTextSize='6pt')
+        #self.poincareWidget.addItem(self.legend)
+        self.legend.setParentItem(self.plot_poincare)
+        view_range = self.plot_poincare.viewRange()
+        x_range, y_range = view_range[0], view_range[1]
+
+        # Position the legend in the top-right corner (adjust as needed)
+        self.legend.setPos(x_range[0], y_range[1]) 
 
         for p in [self.plot_poincare, self.points_poin_art]:
             self.poincare_label.scene().addItem(p)
@@ -261,18 +277,23 @@ class Window(QWidget):
 
         self.brush_colors = {'Tarvainen': pg.mkBrush(255, 196, 61, 255), 
                             'Quotient': pg.mkBrush(6, 214, 160, 255),
+                            'Square': pg.mkBrush(248, 131, 121, 255),
                             'T1': pg.mkBrush(192, 214, 223, 255),
                             'T2': pg.mkBrush(192, 50, 33, 255),
                             'T3': pg.mkBrush(157, 68, 181, 255),
                             'Manual': pg.mkBrush(68, 43, 72, 255)}
+
         self.scatter_points = {'Tarvainen': pg.ScatterPlotItem(), 
                                 'Quotient': pg.ScatterPlotItem(),
+                                'Square': pg.ScatterPlotItem(),
                                 'T1': pg.ScatterPlotItem(),
                                 'T2': pg.ScatterPlotItem(),
                                 'T3': pg.ScatterPlotItem(),
                                 'Manual': pg.ScatterPlotItem()}
+
         self.scatter_poincare = {'Tarvainen': pg.ScatterPlotItem(), 
                                 'Quotient': pg.ScatterPlotItem(),
+                                'Square': pg.ScatterPlotItem(),
                                 'T1': pg.ScatterPlotItem(),
                                 'T2': pg.ScatterPlotItem(),
                                 'T3': pg.ScatterPlotItem(),
