@@ -17,9 +17,9 @@ T2: identified as an interval too short taking into consideration previous sampl
     # Tarvainen
     obj.poin_art.setToolTip("The Tarvainen method of RR artifact correction involves applying a frequency-domain adaptive filter to the RR interval series.")
     # Quotient
-    obj.quot_art.setToolTip("Quotient filtering proposed by Piskorski and Guzik. It is recommended to use this method twice.")
+    obj.quot_art.setToolTip("Quotient filtering proposed by Piskorski and Guzik.")
     # Square
-    obj.square_art.setToolTip("Square filtering proposed by Piskorski and Guzik. It is recommended to use this method twice.")
+    obj.square_art.setToolTip("Square filtering proposed by Piskorski and Guzik.")
     # Manual
     obj.art_btn.setToolTip("Selected sample of RR Signal will be identified as an artifact.")
     # Delete single
