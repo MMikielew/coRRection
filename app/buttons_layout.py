@@ -1,12 +1,12 @@
 """
-Moduł służący utworzeniu układu przycisków
+Module responsible for buttons creation
 """
 from PyQt6.QtWidgets import QPushButton, QButtonGroup, QLabel, QHBoxLayout
 from PyQt6.QtCore import Qt
 
 def create_buttons_layout(obj):
     """
-    funkcja odpowiedzialna za rozmieszczenie przycisków
+    Function responsible for buttons creation
     """
     obj.save_layout = QHBoxLayout()
     obj.save_label = QLabel("Save signal, HRV params and summary of correction applied")
@@ -35,16 +35,6 @@ def create_buttons_layout(obj):
     for t in [obj.diff_man, obj.Tarvainen, obj.quotient, obj.square,
                 obj.t1_auto, obj.t2_auto, obj.t3_auto]:
         obj.c_buttons_layout.addWidget(t)
-
-    """obj.art_btn = QPushButton(obj)
-    obj.art_btn.setText("Mark manually")
-    obj.art_btn.clicked.connect(lambda:obj.choose_artifact())
-    obj.r_buttons_layout.addWidget(obj.art_btn)       
-    
-    obj.del_btn = QPushButton(obj)
-    obj.del_btn.setText("Delete single selection")
-    obj.del_btn.clicked.connect(lambda:obj.del_artifact([obj.coords_x]))
-    obj.r_buttons_layout.addWidget(obj.del_btn)"""
 
     obj.del_btn2 = QPushButton(obj)
     obj.del_btn2.setText("Correct chosen")

@@ -1,51 +1,48 @@
 """ 
-moduł odpowiedzialny za obsługę wykresu
+Module responsible for graph creation and modification
 """
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtCore, QtGui
 import numpy as np
 
-def create_new_graph(obj):
+def create_graph(obj):
     """ 
-    funkcja tworząca widget zawierający wszystkie elementy wykresów
+    Create a widget that will contain RR signal and it's artifacts
     """
-    # inicjalizacja okna obługującego wykresy
     obj.graphWidget = pg.PlotWidget()
     obj.graphWidget.setBackground('w')
-    # tytuł okna
     obj.graphWidget.setWindowTitle('Registered signal')
-    # inicjalizacja pierwszego wykresu z zakresem oraz opisami osi
+
+    # Initialize plot item for RR signal and artifacts
     obj.plot_label = obj.graphWidget.plotItem
     obj.plot_label.setYRange(-100, 1000, padding=0)
     obj.plot_label.setXRange(-100, 30000, padding=0)
     obj.plot_label.setLabels(left = 'RR [ms]', bottom = 'Interval number')
 
-    # inicjalizacja drugiego wykresu wyświetlajacego artefakty
+    # Initialize view item for artifacts
     obj.plot_art = pg.ViewBox()
 
-    # inicjalizacja go wykresu wyświetlajacego 
+    # Initialize view item for RR signal
     obj.p3 = pg.ViewBox()
     obj.hrv_range = pg.ViewBox()
 
-    # inicjalizacja wykresu odpowiedzialnego za wyświetlenie aktualnego kliknięcia kursora
+    # Initialize view item for coursor
     obj.plot_cursor = pg.ViewBox()
     
-    # dodanie widoków do wykresu oraz połączenie ich osi
+    # Linking plot's axes
     for p in [obj.plot_art, obj.p3, obj.hrv_range, obj.plot_cursor]:
         obj.plot_label.scene().addItem(p)
         p.setXLink(obj.plot_label)
         p.setYLink(obj.plot_label)
 
-   
-    # dodanie etykiety wyświetlającej współrzędne 
+    # Add label showing coursor coordinates
     obj.label = pg.TextItem(text="X: {} \nY: {}".format(0, 0))
     obj.graphWidget.addItem(obj.label)
     obj.graphWidget.scene().sigMouseMoved.connect(obj.mouse_moved)
     obj.graphWidget.scene().sigMouseClicked.connect(obj.mouse_clicked)
 
-    # zmiana widoku po aktualizacji wykresu
+    # Actualizing plot after correction
     def updateViews():
-        # dopasowanie wszystkich wykresów do widoku wykresu 1
         for p in [obj.plot_art, obj.p3, obj.hrv_range, obj.plot_cursor]:
             p.setGeometry(obj.plot_label.vb.sceneBoundingRect())
             p.linkedViewChanged(obj.plot_label.vb, p.XAxis)

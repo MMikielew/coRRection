@@ -19,10 +19,8 @@ class Examination():
 
         else:
             self.extension = self.path.split('.')[-1]
-            #self.RR = self.get_RR_intervals()
             self.RR_intervals = [Interval(int(RR)) for RR in self.get_RR_intervals()]
             self.original_len = len(self.RR_intervals)
-            # zainicjowanie słownika artefaktów
             self.artifacts = {"Tarvainen": [],
                             "Quotient": [],
                             "Square": [],

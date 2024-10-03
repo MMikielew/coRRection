@@ -1,5 +1,8 @@
+"""
+Module responsible for creating communiques
+"""
 
-def create_communicas(obj):
+def create_communiques(obj):
     # Section selection
     # Full examination
     obj.h1.setToolTip("Artifacts will be identified/corrected in the whole signal.")

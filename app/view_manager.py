@@ -1,16 +1,16 @@
 from PyQt6.QtWidgets import QFileDialog, QHBoxLayout, QVBoxLayout, QWidget, QGridLayout
 
 def initialize_views(obj):
-    # główny układ aplikacji
+    # Main layout
     obj.main_layout = QVBoxLayout()
 
-    # układ wertykalny 
+    # Vertical layout
     obj.vlayout = QVBoxLayout()
 
-    # układ początkowej linii
+    # First horizontal row of elements
     obj.first_row = QHBoxLayout()
 
-    # układ przycisków
+    # Buttons layout
     obj.c_buttons_layout = QHBoxLayout()
     obj.m_buttons_layout = QHBoxLayout()
     obj.a_buttons_layout = QHBoxLayout()
@@ -18,8 +18,8 @@ def initialize_views(obj):
     obj.hrv_options_layout_1 = QHBoxLayout()
     obj.hrv_options_layout_2 = QHBoxLayout()
 
-    # układ wykresu i parametrów
+    # Plot layout
     obj.RR_layout = QHBoxLayout()
 
-    # ustawienie głównego układu
+    # Main layout
     obj.setLayout(obj.main_layout)

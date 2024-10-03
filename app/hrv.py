@@ -10,7 +10,7 @@ import scipy
 
 def count_hrv(obj):
     """
-    funkcja zwracająca parametry hrv w dziedzinie czasu, częstotliwości oraz nieliniowe
+    Function returning HRV params in time, freq, nonlinear domains
     """
     
     if obj.h1.isChecked() == True:
@@ -87,33 +87,31 @@ SD2 [ms]: {np.round(hrv_nonlinear['sd2'], 3)}
 
 def count_freq_domain(RR):
     """
-    funkcja odpowiedzialna za policzenie parametrow HRV
-    w dziedzinie czestotliwosci
+    Counting HRV params in freq domain
     """
     vlfBand = [0.0033, 0.04]
     lfBand = [0.04, 0.15]
     hfBand = [0.15, 0.4]
     interpRate = 3
-    # stworzenie wektora czasu poprzez kumulacje czasow trwania
-    # kolejnych interwalow RR
+    # Creating time vector by cummulating durations of intervals
     timeSig_tmp = np.cumsum(RR).tolist()
     seriesSig = RR
 
-    # zmiana czasu na sekundy, jesli podano ciag interwalow w ms
+    # Changing values to miliseconds if given in seconds
     medDiff = np.median([x - y for x, y in zip(timeSig_tmp[1:], timeSig_tmp[:-1])])
     if medDiff > 20:  
-        timeSig_tmp = [t/1000 for t in timeSig_tmp]  # zmiana do sekund
+        timeSig_tmp = [t/1000 for t in timeSig_tmp] 
 
-    # wyznaczenie miejsc wystapienia interwalu jako wartosc srodkowa czasu jego wystapienia 
+    # Set time occurance of interval as middle value of its duration 
     timeSig = [timeSig_tmp[i-1]+ timeSig_tmp[i]/2 for i in range(1, len(timeSig_tmp))]
     timeSig.insert(0, timeSig[0]/2)
 
-    # interpolacja
+    # iInterpolation
     funcInterp = scipy.interpolate.interp1d(timeSig, seriesSig, 'cubic')
     newTime = np.arange(timeSig[0], timeSig[-1], 1 / interpRate)
     newSeries = funcInterp(newTime)
 
-    # wyznaczenie periodogramu
+    # Periodogram
     f, psd = scipy.signal.periodogram(newSeries, interpRate, detrend='linear')
     vlfRange = (vlfBand[0] <= f) * (f <= vlfBand[1])
     lfRange = (lfBand[0] <= f) * (f <= lfBand[1])
@@ -131,24 +129,27 @@ def count_freq_domain(RR):
     return results
 
 def count_nonlinear(RR):
+    """
+    Counting HRV params in nonlinear domain
+    """
     diff_rr_intervals = np.diff(RR)
     results = dict()
-    # szerokosc elipsy Poincare
+    # Poincare SD1
     results["sd1"] = np.sqrt(np.std(diff_rr_intervals, ddof=1) ** 2 * 0.5)
-    # dlugosc elipsy Poincare
+    # Poincare SD2
     results["sd2"] = np.sqrt(2 * np.std(RR, ddof=1) ** 2 - 0.5 * np.std(diff_rr_intervals, ddof=1) ** 2)
     return results
 
 def count_time_domain(RR, x=50, binWidth=7.8125):
     """
-    parametry liczone w dziedzinie czestotliwosci
+    Counting HRV params in time domain
     """
     result = dict()
     diffSeg = np.array(RR[1::1]) - np.array(RR[0:-1:1])
     result["mean"] = np.mean(RR)
     result["sdnn"] = np.std(RR)
     result["rmssd"] = np.sqrt(np.mean(diffSeg * diffSeg))
-    # zmiana czasu na sekundy, jesli podano ciag interwalow w ms
+    # Changing values to miliseconds if given in seconds
     if np.mean(RR) < 20: 
         xAux = x/1000
     else: 

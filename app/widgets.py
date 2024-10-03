@@ -1,5 +1,5 @@
 """
-moduł odpowiedzialny za utworzenie widgetów
+Module responsible for widgets creation
 """
 
 from PyQt6.QtCore import Qt
@@ -10,22 +10,16 @@ from PyQt6.QtWidgets import (QCheckBox, QHBoxLayout, QLabel, QLineEdit,
 from buttons_layout import create_buttons_layout
 from RR_layout import create_RR_layout
 from hrv_options import initialize_hrv_options
-from communicats import create_communicas
+from communiques import create_communiques
 
 
 def create_widgets(obj) -> None:
     """
-    dodanie widgetów 
+    Adding widgets
     """
-
-    # utworzenie etykiety z wyśrodkowanym tekstem
-    # oraz dodanie jej do głównego układu
-    #obj.label = QLabel("Load file with extensions .txt, .csv or xls:")
-    #obj.first_row.addWidget(obj.label, alignment=Qt.AlignmentFlag.AlignRight)
     obj.main_layout.addLayout(obj.first_row)
 
-    # utworzenie przycisku odpowiedzialnego za możliwość 
-    # wczytania nowego pliku
+    # Loading new file
     obj.file_btn = QPushButton(obj)
     obj.file_btn.resize(100, 50)
     obj.file_btn.setText("Load file (.txt, .csv, .xlsx or .xls)")
@@ -38,7 +32,7 @@ def create_widgets(obj) -> None:
     obj.identification_label.setStyleSheet('color: red')
     obj.identification_layout.addWidget(obj.identification_label)
 
-    # utworzenie opcji do wpisania ręcznego
+    # Manual settings for T1-T3
     obj.textbox_layout = QHBoxLayout()
     obj.label_art1 = QLabel("T1: Difference between two neighboring RRi [ms]")
     obj.label_art2 = QLabel("T2: Long RRi before short one [ms]")
@@ -54,7 +48,7 @@ def create_widgets(obj) -> None:
                obj.label_art3, obj.textbox_art3]:
         obj.textbox_layout.addWidget(el)
   
-    # dodanie układu hrv
+    # Add HRV layout
     obj.main_layout.addLayout(obj.hrv_options_layout_1)
     obj.main_layout.addLayout(obj.hrv_options_layout_2)
 
@@ -107,39 +101,35 @@ def create_widgets(obj) -> None:
 
     obj.label_marks_correction = QLabel("Modify artifacts manually: ")
 
-    # dodanie układu przycisków zaznaczeń
-    # obj.main_layout.addLayout(obj.r_buttons_layout)
-    # obj.r_buttons_layout.addWidget(obj.label_marks_correction, alignment=Qt.AlignmentFlag.AlignRight)
-
-    # dodanie układu RR
+    # Add RR layout
     create_RR_layout(obj)
     obj.main_layout.addLayout(obj.RR_layout)
     obj.main_layout.addWidget(obj.hrv_label)
 
-    # sections titles
+    # Sections titles
     obj.correction_layout = QHBoxLayout()
     obj.correction_label = QLabel("Options for artifacts correction:")
     obj.correction_label.setStyleSheet('color: red')
     obj.correction_layout.addWidget(obj.correction_label)
     obj.main_layout.addLayout(obj.correction_layout)
 
-    # dodanie układu przycisków korekcji
+    # Add corrction buttons
     obj.main_layout.addLayout(obj.c_buttons_layout)
     obj.main_layout.addLayout(obj.m_buttons_layout)
 
-    # utworzenie przycisków radiowych do wyboru metody usunięcia artefaktów
+    # Add radio buttons for artifact correction method
     obj.m1 = QRadioButton("linear interpolation", obj)
     obj.m2 = QRadioButton("cubic splain", obj)
     obj.m3 = QRadioButton("deletion", obj)
     obj.m4 = QRadioButton("moving average", obj)
     obj.m5 = QRadioButton("pre mean", obj)
 
-    # przycisk definijący ilosc interwałów przed artefaktem
+    # Options for pre-mean correction method
     obj.pre_mean_count = QComboBox()
     obj.pre_mean_count.addItems(["2", "3", "4", "5", "6", "7", "8", "9", "10"])
     obj.pre_mean_count.setCurrentText("4")
 
-    # utworzenie przycisków do usuwania grup artefaktów
+    # Checkboxes for detected artifact to remove
     obj.Tarvainen = QCheckBox("Tarvainen")
     obj.quotient = QCheckBox("Quotient")
     obj.square = QCheckBox("Square")
@@ -149,6 +139,5 @@ def create_widgets(obj) -> None:
     obj.diff_man = QCheckBox("Manual")
     obj.checkbox_list = [obj.Tarvainen, obj.quotient, obj.square, obj.t1_auto, obj.t2_auto, obj.t3_auto, obj.diff_man]
     
-    # utworzenie układów
     create_buttons_layout(obj)
-    create_communicas(obj)
+    create_communiques(obj)

@@ -12,43 +12,40 @@ from artifacts import find_art_tarvainen, find_art_quotient, find_art_square, fi
 from examination import Examination
 from hrv import count_hrv, create_hrv_summary
 from widgets import create_widgets
-from new_graph import add_point_to_graph
+from graph import add_point_to_graph
 from view_manager import initialize_views
 
 class Window(QWidget):
     """
-    Główne okno aplikacji
+    App's main window
     """
     def __init__(self):
         super().__init__()
-        # dostosowanie wielkości okna
         self.resize(700, 500)
         self.setStyleSheet("QLabel{font-size: 8pt;}")
         
-        # tytuł aplikacji
+        # Application title
         self.setWindowTitle("Application to correct artifacts in RR intervals")
-        # ścieżka do obsługiwanego pliku
+        # File path
         self.fname = ""
-        # badanie
+        # Examination
         self.examination = Examination()
         self.create_poincare()
         initialize_views(self)
-        # zmienna przechowująca aktywne elementy wykresu //chyba nie jest dłużej potrzebne
-        self.active_plot_items = []
+        #self.active_plot_items = []
         self.chosen_artifacts = []
         self.method = "lin"
-        # zmienne przechowująca współrzędne pierwszego punktu do oznaczenia
+        # Mouse coordinations
         self.coords_x = None
         self.coords_y = None
         
-        # stworzenie początkowych widgetów
-        
+        # Create layout
         create_widgets(self)
        
 
     def open_dialog(self):
         """
-        funkcja odpowiedzialna za wybór pliku z okna dialogowego
+        File selection
         """
         dialog = QFileDialog()
         self.fname, _ = dialog.getOpenFileName(
@@ -66,7 +63,7 @@ class Window(QWidget):
 
     def mouse_moved(self, evt):
         """
-        funkcja wychwytująca ruch myszki w obrębie wykresu
+        Capturinr mouse movement
         """
         vb = self.graphWidget.plotItem.vb
         if self.graphWidget.sceneBoundingRect().contains(evt):
@@ -75,7 +72,7 @@ class Window(QWidget):
 
     def mouse_clicked(self, evt):
         """
-        funkcja wychwytująca kliknięcie myszki w obrębie wykresu
+        Capturing mous click
         """
         vb = self.graphWidget.plotItem.vb
         scene_coords = evt.scenePos()
@@ -89,14 +86,14 @@ class Window(QWidget):
 
     def update_hrv_params(self):
         """
-        funkcja odpowiadajaca za przeliczenie parametrow hrv i wyswietlenie nowych wartosci
+        Counting HRV
         """
         new_params = create_hrv_summary(count_hrv(self))
         self.hrv_label.setText(new_params)
    
     def choose_artifact(self):
         """
-        funkcja oznaczająca nowy artefakt
+        Manual selection of RR interval 
         """
         if self.coords_x:
             self.examination.artifacts["Manual"].append(self.coords_x)
@@ -104,7 +101,7 @@ class Window(QWidget):
 
     def del_artifact(self, points_to_del):
         """ 
-        funkcja usuwająca wybrane artefakty
+        Manual removal of artifact
         """
         for key in self.examination.artifacts.keys():
             if len(points_to_del) > 0:
@@ -152,9 +149,8 @@ class Window(QWidget):
 
     def auto_detect(self):
         """
-        funkcja znajdujaca artefakty automatycznie i wykreslajaca je na wykresie
+        Automatic detection for T1-T3
         """
-        # warunek wczytania badania
         if len(self.examination.RR_intervals) > 0:
             self.examination.artifacts["T1"] = find_art1(self)
             self.examination.artifacts["T2"] = find_art2(self)
@@ -162,21 +158,33 @@ class Window(QWidget):
             self.plot_artifacts()
 
     def auto_tarvainen(self):
+        """
+        Automatic detection for Tarvainen
+        """
         if len(self.examination.RR_intervals) > 0:
             self.examination.artifacts["Tarvainen"] = find_art_tarvainen(self)
             self.plot_artifacts()
 
     def auto_poincare(self):
+        """
+        Automatic detection for Quotient
+        """
         if len(self.examination.RR_intervals) > 0:
             self.examination.artifacts["Quotient"] = find_art_quotient(self)
             self.plot_artifacts()
 
     def auto_square(self):
+        """
+        Automatic detection for Square
+        """
         if len(self.examination.RR_intervals) > 0:
             self.examination.artifacts["Square"] = find_art_square(self)
             self.plot_artifacts()
     
     def clear_artifacts(self):
+        """
+        Clear all detections
+        """
         if len(self.examination.RR_intervals) > 0:
             for key in (self.examination.artifacts.keys()):
                 self.examination.artifacts[key] = []
@@ -185,7 +193,7 @@ class Window(QWidget):
             
     def delete_chosen_artifacts(self):
         """
-        funkcja odpowiedzialna za usuwanie wybranych artefaktow
+        Remove chosen artifacts
         """
         self.chosen_artifacts = [chbx.text() for chbx in self.checkbox_list if chbx.isChecked()]
         if len(self.chosen_artifacts) > 0:
@@ -202,23 +210,15 @@ class Window(QWidget):
         self.poincare_label = self.poincareWidget.plotItem
         self.poincare_label.setLabels(left='RRi+1 [ms]', bottom='RRi [ms]')
 
-        """obj.plot_label = obj.graphWidget.plotItem
-        obj.plot_label.setYRange(-100, 1000, padding=0)
-        obj.plot_label.setXRange(-100, 30000, padding=0)
-        obj.plot_label.setLabels(left = 'RR [ms]', bottom = 'Interval number')"""
-
         self.plot_poincare = pg.ViewBox()
         self.points_poin_art = pg.ViewBox()
 
-
-        # dodanie legendy do wykresu
         self.legend = pg.LegendItem(offset=(0,0), labelTextSize='6pt')
-        #self.poincareWidget.addItem(self.legend)
         self.legend.setParentItem(self.plot_poincare)
         view_range = self.plot_poincare.viewRange()
         x_range, y_range = view_range[0], view_range[1]
 
-        # Position the legend in the top-right corner (adjust as needed)
+        # Position the legend in the top-right corner
         self.legend.setPos(x_range[0], y_range[1]) 
 
         for p in [self.plot_poincare, self.points_poin_art]:
@@ -244,7 +244,7 @@ class Window(QWidget):
 
     def update_plot(self):
         """
-        funkcja aktualizująca wykres po zmianie jego parametrow
+        Updating plot after correction
         """
         for p in [self.plot_art, self.p3, self.plot_cursor, self.legend, self.plot_poincare]:
             p.clear()
@@ -269,11 +269,8 @@ class Window(QWidget):
         
     def plot_artifacts(self):
         """
-        funkcja odpowiedzialna za wykreslanie artefaktów na wykresie
+        Plotting artifacts on RR interval plot.
         """
-        #self.exam_start
-        #self.exam_stop
-        # okreslenie miejsc występowania artefaktów
 
         self.brush_colors = {'Tarvainen': pg.mkBrush(255, 196, 61, 255), 
                             'Quotient': pg.mkBrush(6, 214, 160, 255),
@@ -319,17 +316,11 @@ class Window(QWidget):
                                                                 list(map(lambda idx: self.examination.RR_intervals[idx].value, self.examination.artifacts[key])), 
                                                                 brush=self.brush_colors[key],
                                                                 hoverable=True)
-            #self.scatter_poincare[key].setData() 
             self.plot_poincare.addItem(self.scatter_poincare[key])
 
-        """for points in [self.points_T1_auto, self.points_T2_auto, self.points_T3_auto,
-                   self.points_T1_manual, self.points_T2_manual, self.points_T3_manual,
-                   self.points_diff]:
-            points = list(filter(lambda x: x > self.exam_start ))"""        
-        
-        """"""
 
-        # ustawienia legendy 
+
+        # Legend
         self.legend.clear()
         for key in self.scatter_points.keys():
             self.legend.addItem(self.scatter_points[key], key)

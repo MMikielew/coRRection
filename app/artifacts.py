@@ -1,5 +1,5 @@
 """
-Moduł odpowiedziany za automatyczne wyznaczanie oraz usuwanie artefaktów
+Module responsible for automatic artifact detection and correction.
 """
 import numpy as np
 from scipy import interpolate
@@ -12,6 +12,9 @@ def find_art_tarvainen(obj,
                         alpha=5.2,
                         window_width=91,
                         medfilt_order=11):
+    """
+    Function to detect artifats with a use of Tarvainen filter
+    """
 
     def _compute_threshold(signal, alpha, window_width):
         df = pd.DataFrame({"signal": np.abs(signal)})
@@ -30,14 +33,13 @@ def find_art_tarvainen(obj,
         return th
 
     rr = list(map(lambda x: x.value, obj.examination.RR_intervals))
-    #rr = list(map(int, rr))
     drrs = np.ediff1d(rr, to_begin=0)
     drrs[0] = np.mean(drrs[1:])
     th1 = _compute_threshold(drrs, alpha, window_width)
-    # ignore division by 0 warning
+    # Ignore division by 0 warning
     old_setting = np.seterr(divide="ignore", invalid="ignore")
     drrs /= th1
-    # return old setting
+    # Return old setting
     np.seterr(**old_setting)
     padding = 2
     drrs_pad = np.pad(drrs, padding, "reflect")
@@ -71,24 +73,23 @@ def find_art_tarvainen(obj,
     longshort_idcs = []
 
     i = 0
-    while i < len(rr) - 2:  # The flow control is implemented based on Figure 1
-        if np.abs(drrs[i]) <= 1:  # Figure 1
+    while i < len(rr) - 2: 
+        if np.abs(drrs[i]) <= 1:  
             i += 1
             continue
         eq1 = np.logical_and(
             drrs[i] > 1, s12[i] < (-c1 * drrs[i] - c2)
-        )  # pylint: disable=E1111
+        )  
         eq2 = np.logical_and(
             drrs[i] < -1, s12[i] > (-c1 * drrs[i] + c2)
-        )  # pylint: disable=E1111
-
+        )  
         if np.any([eq1, eq2]):
             # If any of the two equations is true.
             ectopic_idcs.append(i)
             i += 1
             continue
         # If none of the two equations is true.
-        if ~np.any([np.abs(drrs[i]) > 1, np.abs(mrrs[i]) > 3]):  # Figure 1
+        if ~np.any([np.abs(drrs[i]) > 1, np.abs(mrrs[i]) > 3]):
             i += 1
             continue
         longshort_candidates = [i]
@@ -97,11 +98,11 @@ def find_art_tarvainen(obj,
             longshort_candidates.append(i + 1)
         for j in longshort_candidates:
             # Long beat.
-            eq3 = np.logical_and(drrs[j] > 1, s22[j] < -1)  # pylint: disable=E1111
+            eq3 = np.logical_and(drrs[j] > 1, s22[j] < -1)  
             # Long or short.
-            eq4 = np.abs(mrrs[j]) > 3  # Figure 1
+            eq4 = np.abs(mrrs[j]) > 3 
             # Short beat.
-            eq5 = np.logical_and(drrs[j] < -1, s22[j] > 1)  # pylint: disable=E1111
+            eq5 = np.logical_and(drrs[j] < -1, s22[j] > 1) 
 
             if ~np.any([eq3, eq4, eq5]):
                 # If none of the three equations is true: normal beat.
@@ -137,7 +138,7 @@ def find_art_tarvainen(obj,
 
 def find_art1(obj):
     """
-    funkcja do wyszukiwania artefaktów typu 1
+    Function to detect artifats type T1 defined by Giles.
     """
     diff = int(obj.textbox_art1.text())
     # count differences between this and previous interval
@@ -158,10 +159,10 @@ def find_art1(obj):
 
 def find_art2(obj):
     """
-    funkcja do wyszukiwania artefaktów typu 2 - długi interwał po którym następuje krótki interwał
+    Function to detect artifats type T2 defined by Giles.
     """
     diff = int(obj.textbox_art2.text())
-    # obliczone różnice między obecnym i następnym interwałem
+    # count differences between this and previous interval
     d_next = [1 if (obj.examination.RR_intervals[i-1].value - obj.examination.RR_intervals[i].value) > diff else 0 for i in range(1, len(obj.examination.RR_intervals))]
     d_next.insert(-1, 0)
     # check for last sample
@@ -175,7 +176,7 @@ def find_art2(obj):
 
 def find_art3(obj):
     """
-    funkcja do wyszukiwania artefaktów typu 3 - krótki interwał po którym następuje długi interwał
+    Function to detect artifats type T3 defined by Giles.
     """
     diff = int(obj.textbox_art3.text())
     # obliczone różnice między obecnym i następnym interwałem
@@ -191,7 +192,7 @@ def find_art3(obj):
 
 def find_art_quotient(obj):
     """
-    function to find artifacts with a use of Piskorski-Guzik quotient filter
+    Function to find artifacts with a use of Piskorski-Guzik quotient filter.
     """
     x = np.array([interval.value for interval in obj.examination.RR_intervals])
     L = len(x) - 1
@@ -203,12 +204,11 @@ def find_art_quotient(obj):
     indices_p = np.where(condition1 | condition2 | condition3 | condition4)[0]
     indices_m = indices_p - 1
     indices = np.concatenate((indices_p, indices_m))
-    print(indices)
     return indices.tolist()
 
 def find_art_square(obj):
     """
-    function to find artifacts with a use of Piskorski-Guzik square filter
+    Function to find artifacts with a use of Piskorski-Guzik square filter.
     """
     x = np.array([interval.value for interval in obj.examination.RR_intervals])
     L = len(x) - 1
@@ -226,39 +226,36 @@ def find_art_square(obj):
 
 def remove_artifacts(obj):
     '''
-    function to change chosen artifacts
+    Function to correct chosen artifacts
     '''
-    # odczyt wybranych przez uzytkownika artefaktow wybranych do usuniecia
+    # Check for chosen artifacts types
     atypes = obj.chosen_artifacts
-    # sprawdzenie wybranej metody korekcji artefaktow
+    # Check for chosen correction method
     for m in [obj.m1, obj.m2, obj.m3, obj.m4, obj.m5]:
         if m.isChecked() == True:
             method = m.text()
     
     idx = np.array([])
     for atype in atypes:
-        # dodanie odczytanych artefaktow do listy przeznaczonej do skorygowania
+        # Add artifacts to list for correction
         for el in obj.examination.artifacts[atype]:
             if (el >= obj.exam_start and el <= obj.exam_stop):
                 idx = np.append(idx, el)
                 if obj.examination.RR_intervals[int(el)].artifact == None:
                     obj.examination.RR_intervals[int(el)].artifact = atype
 
-    # sprawdzenie ilosci
+    # Check if there are any artifacts to be corrected
     if len(idx) > 0:
         for i in idx:
             obj.examination.RR_intervals[int(i)].value = np.nan
 
         RR_with_nan = np.array([interval.value for interval in obj.examination.RR_intervals])
-        # utworzenie wektora indeksow
         inds = np.arange(RR_with_nan.shape[0])
-        # odczytanie wartosci nieprzeznaczonych do usuniecia
         values = np.where(np.isfinite(RR_with_nan))
-        # utworzenie wektora wartosci do usuniecia
         nan_values = np.where(~np.isfinite(RR_with_nan))
 
         deleted = np.empty(0)
-        # korekcja metoda interpolacji liniowej
+        # Correct with linear interpolation
         if method == "linear interpolation":
             f = interpolate.interp1d(inds[~np.isnan(RR_with_nan)], RR_with_nan[~np.isnan(RR_with_nan)], bounds_error=False)
 
@@ -269,7 +266,7 @@ def remove_artifacts(obj):
                     interval.value = f(i)
                     interval.correction_methods[method] += 1
 
-        # korekcja metoda splajnu kubicznego
+        # Correct with cubic splain
         elif method == "cubic splain":
             f = sp.interpolate.CubicSpline(inds[values], RR_with_nan[values])
             for i, interval in enumerate(obj.examination.RR_intervals):
@@ -281,7 +278,6 @@ def remove_artifacts(obj):
         
         elif method == "deletion":
             nan_indices = [i for i, interval in enumerate(obj.examination.RR_intervals) if np.isnan(interval.value)]
-            #obj.examination.RR_intervals = list(filter(lambda interval: not np.isnan(interval.value), obj.examination.RR_intervals))
             nan_indices = sorted(set(nan_indices), reverse=True)
             for nan_idx in nan_indices:
                 for key in obj.examination.artifacts.keys():
@@ -290,10 +286,10 @@ def remove_artifacts(obj):
                         obj.examination.RR_intervals.pop(nan_idx)
                     obj.examination.artifacts[key] = [x - 1 if x > nan_idx else x for x in obj.examination.artifacts[key]]
                                                                                                                                                  
-        # korekcja metoda sredniej kroczacej
+        # Correct with moving average
         elif method == "moving average":
             for val in inds[nan_values]:
-                # sprawdzenie warunku posiadania odpowiedniego sasiedztwa
+                # Check if the probe has 3 probes before and after it
                 if 3 <= val <= len(obj.examination.RR_intervals) - 3:
                     neighborhood = RR_with_nan[val - 3:val + 4]
                     temp_means = []
@@ -303,7 +299,7 @@ def remove_artifacts(obj):
                     obj.examination.RR_intervals[val].value = np.mean(temp_means)
                     obj.examination.RR_intervals[val].correction_methods[method] += 1
 
-                # jeśli przypadek skrajny o mniejszym sąsiedztwie niż zakładamy (+/-3) - interpolacja
+                # If probe does not have enough neighbours (+/-3) - correct with interpolation
                 else:
                     f = interpolate.interp1d(inds[nan_values], RR_with_nan[nan_values], bounds_error=False)                            
                     if np.isnan(obj.examination.RR_intervals[val].value):
@@ -324,14 +320,14 @@ def remove_artifacts(obj):
         elif method == "pre mean":
             for val in inds[nan_values]:
                 value_from_gui = int(obj.pre_mean_count.currentText())
-                # sprawdzenie warunku posiadania odpowiedniego sasiedztwa
+                # Check for neighbourhood
                 if value_from_gui <= val <= len(obj.examination.RR_intervals):
                     neighborhood = RR_with_nan[val - value_from_gui:val]
                     
                     obj.examination.RR_intervals[val].value = np.mean(neighborhood)
                     obj.examination.RR_intervals[val].correction_methods[method] += 1
 
-                # jeśli przypadek skrajny o mniejszym sąsiedztwie niż zakładamy (+/-3) - interpolacja
+                # If probe does not have enough neighbours (+/-3) - correct with interpolation
                 else:
                     f = interpolate.interp1d(inds[nan_values], RR_with_nan[nan_values], bounds_error=False)
                     if np.isnan(obj.examination.RR_intervals[val].value):
@@ -350,27 +346,24 @@ def remove_artifacts(obj):
                     interval.correction_methods["linear interpolation"] += 1
 
 
-        # pętla usuwająca wartości NAN z początku badania - te wartości nie mogły zostać zinterpolowane
+        # Remove NANs from the beggining of examination - those values could not be interpolated
         while np.isnan(obj.examination.RR_intervals[0].value):
             obj.examination.RR_intervals.pop(0)
-            # jesli usunieto 1. element - zaktualizować indeksy
             for key in obj.examination.artifacts.keys():
                 obj.examination.artifacts[key] = [x - 1 for x in obj.examination.artifacts[key]]
         
-        # pętla usuwająca wartości NAN z końca badania
+        # Remove NANs from the end of examination - those values could not be interpolated
         while np.isnan(obj.examination.RR_intervals[-1].value):
             obj.examination.RR_intervals.pop(-1)
             for key in obj.examination.artifacts.keys():
                 if len(obj.examination.RR_intervals) in obj.examination.artifacts[key]:
                     obj.examination.artifacts[key].remove(len(obj.examination.RR_intervals))
 
-        #obj.examination.RR = np.array([int(element.value) for element in obj.examination.RR_intervals])
         for key in obj.examination.artifacts.keys():
             for i in idx:
                 if i in obj.examination.artifacts[key]:
                     obj.examination.artifacts[key].remove(i)
         
-        #obj.examination.RR  = np.array([int(interval.value) for interval in obj.examination.RR_intervals])
         return deleted
     else:
         return np.array([])
