@@ -1,3 +1,3 @@
 # CoRRection application for RR intervals identification and removal
 
-Run main to use application.
+To run application run the main.py script, or download the executable: https://www.dropbox.com/scl/fi/eqan6901ih9navlsei4by/CoRRection.exe?rlkey=kefq7c7te7adp9i6bdpqcebu0&st=kfpuscof&dl=0 
