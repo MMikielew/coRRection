@@ -179,8 +179,8 @@ def find_art3(obj):
     Function to detect artifats type T3 defined by Giles.
     """
     diff = int(obj.textbox_art3.text())
-    # obliczone różnice między obecnym i następnym interwałem
-    d_next = [1 if (obj.examination.RR_intervals[i-1].value - obj.examination.RR_intervals[i].value) > diff else 0 for i in range(1, len(obj.examination.RR_intervals))]
+    # count differences between this and previous interval
+    d_next = [1 if (obj.examination.RR_intervals[i-1].value - obj.examination.RR_intervals[i].value) > diff else 0 for i in range(0, len(obj.examination.RR_intervals)-1)]
     d_next.insert(-1, 0)
     # check for last sample
     if obj.examination.RR_intervals[-1].value - obj.examination.RR_intervals[-2].value > diff:
